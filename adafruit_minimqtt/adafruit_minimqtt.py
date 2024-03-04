@@ -189,7 +189,7 @@ class MQTT:
         socket_pool=None,
         ssl_context=None,
         use_binary_mode: bool = False,
-        socket_timeout: int = 1,
+        socket_timeout: float = 1.0,
         connect_retries: int = 5,
         user_data=None,
         use_imprecise_time: Optional[bool] = None,
@@ -1027,13 +1027,15 @@ class MQTT:
 
         return ret
 
-    def loop(self, timeout: float = 0) -> Optional[list[int]]:
+    def loop(self, timeout: Optional[float] = None) -> Optional[list[int]]:
         """Non-blocking message loop. Use this method to check for incoming messages.
         Returns list of packet types of any messages received or None.
 
         :param float timeout: return after this timeout, in seconds.
 
         """
+        if timeout is None:
+            timeout = self._socket_timeout
         if timeout < self._socket_timeout:
             raise MMQTTException(
                 # pylint: disable=consider-using-f-string

@@ -31,6 +31,7 @@ photocell_feed = aio_username + "/feeds/photocell"
 # Setup a feed named 'onoff' for subscribing to changes
 onoff_feed = aio_username + "/feeds/onoff"
 
+
 ### Code ###
 
 
@@ -88,13 +89,27 @@ print("Connecting to Adafruit IO...")
 mqtt_client.connect()
 
 photocell_val = 0
-while True:
-    # Poll the message queue
-    mqtt_client.loop()
 
-    # Send a new message
-    print(f"Sending photocell value: {photocell_val}...")
-    mqtt_client.publish(photocell_feed, photocell_val)
-    print("Sent!")
-    photocell_val += 1
-    time.sleep(5)
+MQTT_INTERVAL = 5
+last_mqtt_time = 0
+
+i = 0
+while True:
+
+    now = time.monotonic()
+
+    if now <= last_mqtt_time + MQTT_INTERVAL:
+        last_mqtt_time = now
+        # Poll the message queue
+        mqtt_client.loop()
+
+        # Send a new message
+        print(f"Sending photocell value: {photocell_val}...")
+        mqtt_client.publish(photocell_feed, photocell_val)
+        print("Sent!")
+        photocell_val += 1
+    
+    print(i)
+    i += 1
+    
+    # time.sleep(5)
